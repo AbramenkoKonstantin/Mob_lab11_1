@@ -7,26 +7,25 @@ import retrofit2.Response
 import timber.log.Timber
 
 class MyViewModel : ViewModel() {
-    private val weatherData: MutableList<List<ListItem>> by lazy {
-        mutableListOf<List<ListItem>>().also {
+    private var weatherList: MutableList<ListItem>? = null
+
+    fun getWeatherData(): List<ListItem> {
+        if (weatherList == null) {
+            weatherList = mutableListOf()
             loadWeatherData()
         }
-    }
-
-    public fun getWeather(): List<ListItem> {
-        return weatherData[weatherData.lastIndex]
+        return weatherList as MutableList<ListItem>
     }
 
 
-
-    private fun loadWeatherData() {
+    private fun loadWeatherData(){
         val mService = Common.retrofitService
-        Timber.plant(Timber.DebugTree())
-        Timber.d("Привет")
+
         mService.getWeatherList().enqueue(object : Callback<DataWeather> {
             override fun onResponse(call: Call<DataWeather>, response: Response<DataWeather>) {
                 val dataWeather = response.body() as DataWeather
-                weatherData.add(dataWeather.list)
+                weatherList = dataWeather.list as MutableList<ListItem>
+
             }
 
             override fun onFailure(call: Call<DataWeather>, t: Throwable) {
